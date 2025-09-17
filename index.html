@@ -687,7 +687,8 @@
             onNewGroup,
             currentUser,
             isMobileOpen,
-            onMobileClose
+            onMobileClose,
+            onLogout
         }) => {
             const [searchQuery, setSearchQuery] = useState('');
             const [searchResults, setSearchResults] = useState([]);
@@ -737,8 +738,11 @@
                             <button className="btn btn-sm btn-outline-secondary me-2" onClick={onNewChat}>
                                 <i className="fas fa-comment-medical"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-secondary" onClick={onNewGroup}>
+                            <button className="btn btn-sm btn-outline-secondary me-2" onClick={onNewGroup}>
                                 <i className="fas fa-users"></i>
+                            </button>
+                            <button className="btn btn-sm btn-outline-danger" title="Logout" onClick={onLogout}>
+                                <i className="fas fa-right-from-bracket"></i>
                             </button>
                         </div>
                     </div>
@@ -1180,6 +1184,24 @@
                 setIsMobileSidebarOpen(false);
             };
 
+            const handleLogout = async () => {
+                try {
+                    localStorage.removeItem('token');
+                    if (connection) {
+                        try { await connection.stop(); } catch (_) {}
+                    }
+                } finally {
+                    setToken(null);
+                    setCurrentUser(null);
+                    setCurrentChat(null);
+                    setChatType(null);
+                    setMessages([]);
+                    setUnreadCounts({});
+                    setTypingUsers([]);
+                    setIsMobileSidebarOpen(false);
+                }
+            };
+
             if (!currentUser) {
                 return (
                     <div className="chat-app">
@@ -1203,6 +1225,7 @@
                             currentUser={currentUser}
                             isMobileOpen={isMobileSidebarOpen}
                             onMobileClose={closeMobileSidebar}
+                            onLogout={handleLogout}
                         />
 
                         <ChatArea
